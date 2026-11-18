@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script><title>Dashboard Kehadiran Karyawan</title>
+<style>
+:root{--navy:#182b49;--blue:#315f9b;--bg:#f3f6fb;--text:#1f2937;--muted:#64748b;--line:#e5eaf1;--green:#23966b;--orange:#e99a35;--red:#d95757;--purple:#8066bd}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:Arial,Helvetica,sans-serif;color:var(--text)}.wrap{max-width:1200px;margin:0 auto;padding:28px 24px 48px}.hero{background:linear-gradient(120deg,#182b49,#315f9b);color:white;border-radius:18px;padding:26px 30px;margin-bottom:22px}.hero h1{margin:0 0 8px;font-size:27px;letter-spacing:.2px}.hero p{margin:0;color:#dbe7f6;font-size:14px}.filters{display:flex;gap:16px;flex-wrap:wrap;background:white;padding:17px 20px;border:1px solid var(--line);border-radius:14px;margin-bottom:20px;align-items:end}.field{display:flex;flex-direction:column;gap:7px;min-width:190px}.field label{font-size:12px;color:var(--muted);font-weight:700}.field select,.field input{height:39px;border:1px solid #cbd5e1;border-radius:8px;padding:0 11px;font-size:14px;background:white;color:var(--text)}.hint{margin-left:auto;color:var(--muted);font-size:12px;align-self:center}.cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:20px}.card{background:white;border:1px solid var(--line);border-radius:14px;padding:17px 18px;box-shadow:0 2px 7px rgba(20,40,70,.035)}.card .label{font-size:12px;color:var(--muted);font-weight:700;letter-spacing:.3px}.card .value{font-size:30px;font-weight:800;margin-top:9px;color:var(--navy)}.card .sub{font-size:11px;color:var(--muted);margin-top:5px}.charts{display:grid;grid-template-columns:1.45fr 1fr;gap:18px;margin-bottom:20px}.panel{background:white;border:1px solid var(--line);border-radius:14px;padding:20px;min-width:0}.panel h2{font-size:16px;margin:0 0 5px;color:var(--navy)}.panel .desc{font-size:12px;color:var(--muted);margin-bottom:16px}.chartbox{width:100%;overflow:hidden}.chartbox svg{display:block;width:100%;height:auto;max-height:360px}.donut-area{display:flex;align-items:center;justify-content:center;gap:24px;flex-wrap:wrap;min-height:265px}.donut{width:210px;height:210px;border-radius:50%;position:relative;flex:0 0 auto}.donut:after{content:"";position:absolute;inset:48px;background:white;border-radius:50%}.donut-center{position:absolute;z-index:1;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column}.donut-center strong{font-size:27px;color:var(--navy)}.donut-center span{font-size:11px;color:var(--muted)}.legend{display:flex;flex-direction:column;gap:12px}.leg{display:flex;align-items:center;gap:9px;font-size:13px;min-width:110px}.dot{width:11px;height:11px;border-radius:3px;display:inline-block}.leg b{margin-left:auto;padding-left:12px}.tablepanel{background:white;border:1px solid var(--line);border-radius:14px;padding:20px;overflow:auto;margin-bottom:20px}.tablepanel h2{font-size:16px;color:var(--navy);margin:0 0 14px}table{border-collapse:collapse;width:100%;font-size:13px;min-width:560px}th,td{padding:11px 12px;text-align:left;border-bottom:1px solid var(--line)}th{background:#f7f9fc;color:#475569;font-size:12px}td.num{text-align:center;font-weight:700}.status{display:inline-block;padding:4px 9px;border-radius:20px;font-size:11px;font-weight:700}.Hadir{background:#e4f5ed;color:#18794e}.Izin{background:#fff2dc;color:#9a5b00}.Sakit{background:#eee9fb;color:#6547a5}.Alfa{background:#fde8e8;color:#b42323}.clock{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:14px;font-size:14px;color:#dbe7f6}.clock b{font-size:22px;color:#fff;font-variant-numeric:tabular-nums}.live{width:9px;height:9px;border-radius:50%;background:#4ade80;box-shadow:0 0 0 0 rgba(74,222,128,.7);animation:pulse 1.6s infinite}@keyframes pulse{70%{box-shadow:0 0 0 8px rgba(74,222,128,0)}100%{box-shadow:0 0 0 0 rgba(74,222,128,0)}}.foot{font-size:11px;color:#7b8797;text-align:center;margin-top:18px}
+@media(max-width:850px){.cards{grid-template-columns:repeat(2,minmax(0,1fr))}.charts{grid-template-columns:1fr}.hint{margin-left:0;width:100%}}@media(max-width:480px){.wrap{padding:14px}.hero{padding:21px}.hero h1{font-size:22px}.cards{gap:9px}.card{padding:13px}.card .value{font-size:25px}.panel{padding:14px}}
+</style></head><body><main class="wrap">
+<header class="hero"><h1>Dashboard Kehadiran Karyawan</h1><p>Ringkasan dan pemantauan kehadiran karyawan berdasarkan divisi dan periode.</p><div class="clock"><span class="live"></span><b id="clockTime">--:--:--</b><span id="clockDate"></span></div></header>
+<section class="filters"><div class="field"><label for="period">Bulan / Periode</label><input id="period" type="month" value="2026-11"></div><div class="field"><label for="division">Divisi</label><select id="division"><option value="Semua Divisi">Semua Divisi</option></select></div><div class="field" style="min-width:300px;flex:1"><label for="sheetLink">Link Google Sheets (opsional)</label><div style="display:flex;gap:8px"><input id="sheetLink" type="url" placeholder="https://docs.google.com/spreadsheets/d/..." style="flex:1;min-width:0"><button id="sheetBtn" type="button" style="height:39px;border:0;border-radius:8px;padding:0 14px;background:#315f9b;color:#fff;font-weight:700;cursor:pointer">Sambungkan</button></div></div><div class="field"><label for="upload">Ganti data (opsional)</label><input id="upload" type="file" accept=".xlsx,.xls,.csv"></div><div class="hint" id="status">Memuat data...</div></section>
+<section class="cards" id="cards"></section>
+<section class="charts"><article class="panel"><h2>Rekap Kehadiran per Divisi</h2><div class="desc">Jumlah status kehadiran pada setiap divisi</div><div class="chartbox" id="barChart"></div></article><article class="panel"><h2>Komposisi Status Kehadiran</h2><div class="desc">Perbandingan seluruh status kehadiran</div><div class="donut-area" id="donutChart"></div></article></section>
+<section class="tablepanel"><h2>Ringkasan Data per Divisi</h2><div id="summaryTable"></div></section>
+<section class="tablepanel"><h2>Detail Kehadiran Karyawan</h2><div id="detailTable"></div></section>
+<div class="foot">Dashboard Kehadiran Karyawan • Data dibaca langsung dari Google Sheets atau file dasborad.xlsx</div></main>
+<script>
+const DATA_FILE='dasborad.xlsx'; // nama file Excel di repo GitHub (satu folder dengan index.html)
+const SHEET_URL=''; // isi link Google Sheets di sini (atau tempel lewat kolom di halaman); kosong = pakai dasborad.xlsx
+const REFRESH_SECONDS=30; // data Excel dicek ulang tiap 30 detik
+let manualFile=false, lastUpdate=null, sourceLabel='file Excel';
+const linkEl=document.getElementById('sheetLink');
+function getSheetId(u){const m=String(u||'').match(/\/spreadsheets\/d\/([a-zA-Z0-9_-]+)/);return m&&!/^e$/.test(m[1])?m[1]:''}
+function activeLink(){let l='';try{l=localStorage.getItem('sheetLink')||''}catch(e){}return l||SHEET_URL}
+const SHEET_ABSENSI='Absensi', SHEET_KARYAWAN='Data Karyawan';
+let DB={records:[],employees:[]};
+const colors={Hadir:'#23966b',Izin:'#e99a35',Sakit:'#8066bd',Alfa:'#d95757'};
+const sel=document.getElementById('division'),periodEl=document.getElementById('period'),statusEl=document.getElementById('status');
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function toISO(v){
+ if(v instanceof Date)return v.toISOString().slice(0,10);
+ if(typeof v==='number')return new Date(Math.round((v-25569)*86400000)).toISOString().slice(0,10);
+ const t=String(v||'').trim(); const m=t.match(/^(\d{4})-(\d{2})-(\d{2})/); if(m)return m[0];
+ const d=t.match(/^(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})/); if(d)return d[3]+'-'+d[2].padStart(2,'0')+'-'+d[1].padStart(2,'0');
+ return t;
+}
+function loadWorkbook(wb){
+ const rowsOf=n=>wb.Sheets[n]?XLSX.utils.sheet_to_json(wb.Sheets[n],{defval:''}):[];
+ applyData(rowsOf(SHEET_ABSENSI),rowsOf(SHEET_KARYAWAN));
+}
+async function sheetRows(id,name){
+ const url='https://docs.google.com/spreadsheets/d/'+id+'/gviz/tq?tqx=out:json&headers=1&sheet='+encodeURIComponent(name)+'&_='+Date.now();
+ const res=await fetch(url);
+ if(!res.ok)throw new Error('HTTP '+res.status);
+ const txt=await res.text();
+ const m=txt.match(/setResponse\(([\s\S]*)\);?\s*$/);
+ if(!m)throw new Error('Sheet tidak bisa dibaca (pastikan akses "Siapa saja yang memiliki link: Pelihat")');
+ const j=JSON.parse(m[1]);
+ if(j.status==='error')throw new Error((j.errors&&j.errors[0]&&j.errors[0].detailed_message)||'Sheet "'+name+'" tidak ditemukan');
+ const cols=j.table.cols.map(c=>c.label||c.id);
+ return j.table.rows.map(r=>{const o={};cols.forEach((c,i)=>{let cell=r.c[i],v=cell&&cell.v!=null?cell.v:'';
+  if(typeof v==='string'){const d=v.match(/^Date\((\d+),(\d+),(\d+)/);if(d)v=d[1]+'-'+String(+d[2]+1).padStart(2,'0')+'-'+d[3].padStart(2,'0')}
+  o[c]=v});return o});
+}
+async function loadFromSheet(id){
+ const [abs,emp]=await Promise.all([sheetRows(id,SHEET_ABSENSI),sheetRows(id,SHEET_KARYAWAN).catch(()=>[])]);
+ sourceLabel='Google Sheets';applyData(abs,emp);
+}
+function applyData(abs,emp){
+ if(!abs.length)throw new Error('Sheet "'+SHEET_ABSENSI+'" tidak ditemukan atau kosong');
+ DB.records=abs.filter(r=>r['Tanggal']!==''&&r['Status']!=='').map(r=>({date:toISO(r['Tanggal']),id:String(r['ID Karyawan']).trim(),name:String(r['Nama Karyawan']).trim(),division:String(r['Divisi']).trim(),status:String(r['Status']).trim(),note:String(r['Keterangan']||'').trim()}));
+ DB.employees=emp.filter(r=>r['ID Karyawan']!=='').map(r=>({id:String(r['ID Karyawan']).trim(),name:String(r['Nama Karyawan']).trim(),division:String(r['Divisi']).trim(),position:String(r['Jabatan']||'').trim()}));
+ if(!DB.employees.length){const seen={};DB.records.forEach(r=>{if(!seen[r.id]){seen[r.id]=1;DB.employees.push({id:r.id,name:r.name,division:r.division})}})}
+ const cur=sel.value;
+ sel.innerHTML='<option value="Semua Divisi">Semua Divisi</option>';
+ [...new Set(DB.employees.map(x=>x.division))].forEach(d=>{const o=document.createElement('option');o.value=d;o.textContent=d;sel.appendChild(o)});
+ if([...sel.options].some(o=>o.value===cur))sel.value=cur;
+ const months=[...new Set(DB.records.map(r=>r.date.slice(0,7)))].sort();
+ if(months.length&&!months.includes(periodEl.value))periodEl.value=months[months.length-1];
+ lastUpdate=new Date();showStatus();
+ render();
+}
+function showStatus(){
+ if(!lastUpdate)return;
+ statusEl.textContent=sourceLabel+': '+DB.records.length+' catatan, '+DB.employees.length+' karyawan • diperbarui '+lastUpdate.toLocaleTimeString('id-ID',{timeZone:'Asia/Jakarta'})+' WIB'+(manualFile?' (file manual)':' • auto-refresh '+REFRESH_SECONDS+' dtk');
+}
+function tickClock(){
+ const n=new Date();
+ document.getElementById('clockTime').textContent=n.toLocaleTimeString('id-ID',{timeZone:'Asia/Jakarta',hour12:false}).replace(/\./g,':')+' WIB';
+ document.getElementById('clockDate').textContent=n.toLocaleDateString('id-ID',{timeZone:'Asia/Jakarta',weekday:'long',day:'numeric',month:'long',year:'numeric'});
+}
+tickClock();setInterval(tickClock,1000);
+async function loadFromRepo(){
+ try{
+  const sid=getSheetId(activeLink());
+  if(sid){await loadFromSheet(sid);return}
+  sourceLabel='file Excel';
+  const res=await fetch(DATA_FILE+'?t='+Date.now());
+  if(!res.ok)throw new Error('HTTP '+res.status);
+  loadWorkbook(XLSX.read(await res.arrayBuffer(),{type:'array'}));
+ }catch(e){
+  if(getSheetId(activeLink())){statusEl.textContent=(DB.records.length?'Gagal memperbarui, menampilkan data terakhir. ':'')+'Google Sheets: '+e.message;if(!DB.records.length)render();return}
+  if(DB.records.length){statusEl.textContent='Gagal memperbarui ('+e.message+'), menampilkan data terakhir.';return}
+  statusEl.textContent='Gagal memuat '+DATA_FILE+' ('+e.message+'). Pilih file Excel secara manual di kolom "Ganti data".';
+  render();
+ }
+}
+linkEl.value=activeLink();
+document.getElementById('sheetBtn').addEventListener('click',()=>{
+ const v=linkEl.value.trim();
+ if(v&&!getSheetId(v)){statusEl.textContent='Link tidak valid. Gunakan link Google Sheets (…/spreadsheets/d/ID/…).';return}
+ try{v?localStorage.setItem('sheetLink',v):localStorage.removeItem('sheetLink')}catch(e){}
+ manualFile=false;statusEl.textContent='Menyambungkan...';loadFromRepo();
+});
+document.getElementById('upload').addEventListener('change',async ev=>{
+ const f=ev.target.files[0];if(!f)return;
+ try{manualFile=true;loadWorkbook(XLSX.read(await f.arrayBuffer(),{type:'array'}))}catch(e){statusEl.textContent='File tidak valid: '+e.message}
+});
+function render(){
+ const month=periodEl.value,div=sel.value;
+ const divisions=[...new Set(DB.employees.map(x=>x.division))];
+ const rows=DB.records.filter(r=>(!month||r.date.startsWith(month))&&(div==='Semua Divisi'||r.division===div));
+ const staff=DB.employees.filter(e=>div==='Semua Divisi'||e.division===div);
+ const counts={Hadir:0,Izin:0,Sakit:0,Alfa:0};rows.forEach(r=>{if(counts[r.status]!==undefined)counts[r.status]++});
+ const total=rows.length,pct=total?Math.round(counts.Hadir/total*100):0;
+ const cards=[['TOTAL KARYAWAN',staff.length,'Jumlah karyawan'],['HADIR',counts.Hadir,'Catatan kehadiran'],['IZIN',counts.Izin,'Catatan izin'],['SAKIT',counts.Sakit,'Catatan sakit'],['ALFA',counts.Alfa,'Catatan tanpa keterangan'],['TOTAL CATATAN',total,'Data sesuai filter'],['PERSENTASE HADIR',pct+'%','Hadir ÷ total catatan']];
+ document.getElementById('cards').innerHTML=cards.map(c=>`<div class="card"><div class="label">${c[0]}</div><div class="value">${c[1]}</div><div class="sub">${c[2]}</div></div>`).join('');
+ const stats=divisions.filter(d=>div==='Semua Divisi'||d===div).map(d=>{let x={division:d,Hadir:0,Izin:0,Sakit:0,Alfa:0};rows.filter(r=>r.division===d).forEach(r=>{if(x[r.status]!==undefined)x[r.status]++});return x});
+ const W=760,H=330,left=132,right=28,top=24,bottom=54,plotW=W-left-right,plotH=H-top-bottom,max=Math.max(5,...stats.flatMap(x=>[x.Hadir,x.Izin,x.Sakit,x.Alfa])),nice=Math.ceil(max/5)*5;
+ let svg=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Grafik batang rekap kehadiran per divisi">`;
+ for(let t=0;t<=5;t++){let val=nice*t/5,y=top+plotH-(plotH*t/5);svg+=`<line x1="${left}" y1="${y}" x2="${W-right}" y2="${y}" stroke="#e8edf4"/><text x="${left-12}" y="${y+4}" text-anchor="end" font-size="11" fill="#64748b">${Math.round(val)}</text>`}
+ const groupH=plotH/Math.max(stats.length,1),barH=Math.min(12,groupH/5);
+ stats.forEach((s,i)=>{let cy=top+groupH*(i+.5);svg+=`<text x="${left-12}" y="${cy+4}" text-anchor="end" font-size="12" fill="#334155">${esc(s.division)}</text>`;['Hadir','Izin','Sakit','Alfa'].forEach((st,j)=>{let y=cy-2*barH+j*(barH+3),bw=s[st]/nice*plotW;svg+=`<rect x="${left}" y="${y}" width="${Math.max(0,bw)}" height="${barH}" rx="3" fill="${colors[st]}"/><text x="${left+bw+6}" y="${y+barH-1}" font-size="10" fill="#475569">${s[st]}</text>`})});svg+='</svg>';
+ document.getElementById('barChart').innerHTML=stats.length?svg:'<p>Belum ada data untuk filter ini.</p>';
+ let totalDonut=Object.values(counts).reduce((a,b)=>a+b,0),start=0,stops=[];
+ ['Hadir','Izin','Sakit','Alfa'].forEach(st=>{let end=totalDonut?start+counts[st]/totalDonut*100:start;stops.push(`${colors[st]} ${start}% ${end}%`);start=end});
+ let gradient=totalDonut?`conic-gradient(${stops.join(',')})`:'conic-gradient(#e5e7eb 0% 100%)';
+ document.getElementById('donutChart').innerHTML=`<div class="donut" style="background:${gradient}"><div class="donut-center"><strong>${totalDonut}</strong><span>Total catatan</span></div></div><div class="legend">${['Hadir','Izin','Sakit','Alfa'].map(st=>`<div class="leg"><span class="dot" style="background:${colors[st]}"></span><span>${st}</span><b>${counts[st]}</b></div>`).join('')}</div>`;
+ document.getElementById('summaryTable').innerHTML=`<table><thead><tr><th>Divisi</th><th>Hadir</th><th>Izin</th><th>Sakit</th><th>Alfa</th><th>Total</th></tr></thead><tbody>${stats.map(s=>`<tr><td>${esc(s.division)}</td>${['Hadir','Izin','Sakit','Alfa'].map(st=>`<td class="num">${s[st]}</td>`).join('')}<td class="num">${s.Hadir+s.Izin+s.Sakit+s.Alfa}</td></tr>`).join('')}</tbody></table>`;
+ document.getElementById('detailTable').innerHTML=rows.length?`<table><thead><tr><th>Tanggal</th><th>ID Karyawan</th><th>Nama</th><th>Divisi</th><th>Status</th><th>Keterangan</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${esc(r.date)}</td><td>${esc(r.id)}</td><td>${esc(r.name)}</td><td>${esc(r.division)}</td><td><span class="status ${esc(r.status)}">${esc(r.status)}</span></td><td>${esc(r.note||'-')}</td></tr>`).join('')}</tbody></table>`:'<p>Belum ada data untuk filter ini.</p>';
+}
+periodEl.addEventListener('change',render);sel.addEventListener('change',render);render();loadFromRepo();setInterval(()=>{if(!manualFile&&!document.hidden)loadFromRepo()},REFRESH_SECONDS*1000);
+</script></body></html>
